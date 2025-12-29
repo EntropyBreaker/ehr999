@@ -16,7 +16,7 @@ from pathlib import Path
 # 配置
 # ================================================
 SYMBOL = 'ETHUSDT'
-OUTPUT_DIR = 'index.html'
+OUTPUT_FILE = 'index.html'
 
 
 # ================================================
@@ -482,13 +482,13 @@ def generate_html_chart(df, symbol='ETHUSDT', output_path=None):
 </body>
 </html>'''
     
-    # 保存文件
-    if output_path is None:
-        Path(OUTPUT_DIR).mkdir(parents=True, exist_ok=True)
-        output_path = Path(OUTPUT_DIR, f'index.html')
-    
-    with open(output_path, 'w', encoding='utf-8') as f:
+    # --- 简化的保存逻辑 ---
+    # 强制直接在当前目录下创建文件
+    with open("index.html", 'w', encoding='utf-8') as f:
         f.write(html_content)
+    
+    print(f"✅ HTML 图表已成功写入到当前目录: index.html")
+    return "index.html"
     
     print(f"✅ HTML 图表已保存到: {output_path}")
     return str(output_path)
@@ -518,4 +518,5 @@ if __name__ == '__main__':
         print("\n✅ 更新完成！HTML 图表已保存。")
     else:
         print("❌ 获取数据失败，等待下一次尝试...")
+
 
