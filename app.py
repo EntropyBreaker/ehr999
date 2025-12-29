@@ -27,7 +27,7 @@ def fetch_eth_klines(symbol='ETHUSDT', interval='1d', limit=1000):
     从币安 API 获取全量 K 线数据
     通过分批请求获取所有历史数据
     """
-    url = 'https://api.binance.com/api/v3/klines'
+    url = 'https://api3.binance.com/api/v3/klines'
     all_data = []
     
     print(f"正在从币安获取 {symbol} {interval} 全量K线数据...")
@@ -518,5 +518,6 @@ if __name__ == '__main__':
         print("\n✅ 更新完成！HTML 图表已保存。")
     else:
         print("❌ 获取数据失败，等待下一次尝试...")
+
 
 
