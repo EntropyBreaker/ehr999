@@ -2,14 +2,14 @@ name: Hourly Update EHR999
 
 on:
   schedule:
-    - cron: '0 * * * *'  # 意思是每小时整点运行一次
-  workflow_dispatch:      # 允许你手动点击按钮运行
+    - cron: '0 * * * *'
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: write    # 允许脚本修改仓库里的文件
+      contents: write
     steps:
       - name: 检查代码
         uses: actions/checkout@v3
@@ -20,20 +20,22 @@ jobs:
           python-version: '3.11'
 
       - name: 安装依赖
-        run: |
-          pip install -r requirements.txt
+        run: pip install numpy==1.26.4 pandas==2.2.3 requests==2.32.3
 
       - name: 运行 Python 脚本
         run: python app.py
-        
-      - name: 查看当前目录文件 (调试用)
-        run: ls -R
-        
-      - name: 将生成的 HTML 提交到仓库
+
+      - name: 强制提交文件
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add index.html
-          # 如果文件没变，git commit 会报错，用 || exit 0 忽略它
-          git commit -m "自动更新指标图表: $(date)" || exit 0
-          git push origin main
+          
+          # 检查文件是否存在
+          if [ -f "index.html" ]; then
+            git add -f index.html
+            # 只有在有变化时才提交，防止报错
+            git diff --quiet && git diff --staged --quiet || (git commit -m "自动更新指标: $(date)" && git push origin HEAD:main)
+          else
+            echo "错误：脚本运行完但 index.html 没影了！"
+            exit 1
+          fi
