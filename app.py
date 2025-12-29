@@ -495,39 +495,27 @@ def generate_html_chart(df, symbol='ETHUSDT', output_path=None):
 
 
 if __name__ == '__main__':
-    # 第一次运行前可以加个小延迟，确保网络环境完全就绪
-    time.sleep(5) 
+
+    print("\n" + "=" * 60)
+    print(f"开始更新任务: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+    print("=" * 60)
     
-    while True:
-        try:
-            print("\n" + "=" * 60)
-            print(f"开始更新任务: {time.strftime('%Y-%m-%d %H:%M:%S')}")
-            print("=" * 60)
-            
-            # 1. 获取全量数据
-            df = fetch_eth_klines(SYMBOL, interval='1d')
-            
-            if df is not None:
-                # 2. 计算 EHR999
-                df = calculate_ehr999(df)
-                
-                # 3. 显示最新数据
-                print("\n最新趋势:")
-                print(f"   价格: ${df['close'].iloc[-1]:.2f}")
-                print(f"   EHR999: {df['EHR999'].iloc[-1]:.4f}")
-                print(f"   时间: {df['open_time'].iloc[-1]}")
-                
-                # 4. 生成 HTML 图表
-                generate_html_chart(df, SYMBOL)
-                print("\n✅ 更新完成！HTML 图表已保存。")
-            else:
-                print("❌ 获取数据失败，等待下一次尝试...")
+    # 1. 获取全量数据
+    df = fetch_eth_klines(SYMBOL, interval='1d')
+    
+    if df is not None:
+        # 2. 计算 EHR999
+        df = calculate_ehr999(df)
+        
+        # 3. 显示最新数据
+        print("\n最新趋势:")
+        print(f"   价格: ${df['close'].iloc[-1]:.2f}")
+        print(f"   EHR999: {df['EHR999'].iloc[-1]:.4f}")
+        print(f"   时间: {df['open_time'].iloc[-1]}")
+        
+        # 4. 生成 HTML 图表
+        generate_html_chart(df, SYMBOL)
+        print("\n✅ 更新完成！HTML 图表已保存。")
+    else:
+        print("❌ 获取数据失败，等待下一次尝试...")
 
-        except Exception as e:
-            print(f"⚠️ 运行过程中出现错误: {e}")
-
-        # --- 核心修改：设置等待间隔 ---
-        # 建议每小时更新一次（3600秒），避免被币安封禁 IP
-        print("\n进入休眠，1小时后将再次自动更新...")
-
-        time.sleep(3600)
