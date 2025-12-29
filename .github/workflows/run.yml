@@ -3,39 +3,41 @@ name: Hourly Update EHR999
 on:
   schedule:
     - cron: '0 * * * *'
-  workflow_dispatch:
+  workflow_dispatch: # 允许你手动点击运行
 
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write # 必须显式开启写入权限
     steps:
       - name: 检查代码
         uses: actions/checkout@v3
 
-      - name: 设置 Python 3.11
+      - name: 设置 Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
       - name: 安装依赖
-        run: pip install numpy==1.26.4 pandas==2.2.3 requests==2.32.3
+        run: pip install pandas numpy requests
 
       - name: 运行 Python 脚本
         run: python app.py
 
-      - name: 强制提交文件
+      - name: 检查文件并推送
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
-          # 检查文件是否存在
+          # 关键点：强制检查 index.html
           if [ -f "index.html" ]; then
-            git add -f index.html
-            # 只有在有变化时才提交，防止报错
-            git diff --quiet && git diff --staged --quiet || (git commit -m "自动更新指标: $(date)" && git push origin HEAD:main)
+            echo "文件已找到，准备提交..."
+            git add index.html
+            # 只有在内容有变化时才提交
+            git commit -m "自动更新指标: $(date)" || echo "内容无变化，跳过提交"
+            git push origin HEAD:main # 显式推送到 main 分支
           else
-            echo "错误：脚本运行完但 index.html 没影了！"
+            echo "错误：index.html 未生成！"
             exit 1
           fi
